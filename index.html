@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ergo Mining Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header>
+    <div class="logo">⛏️ ERGO MINING CALCULATOR</div>
+    <div class="subtitle">Live profitability analysis for Ergo miners</div>
+    <div class="live-badge">● LIVE DATA</div>
+  </header>
+
+  <main>
+    <!-- Network Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-item">
+        <span class="stat-label">ERG Price</span>
+        <span class="stat-value" id="ergPrice">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Network Hashrate</span>
+        <span class="stat-value" id="netHashrate">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Difficulty</span>
+        <span class="stat-value" id="netDifficulty">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Block Reward</span>
+        <span class="stat-value" id="blockReward">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Block Time</span>
+        <span class="stat-value" id="blockTime">~2 min</span>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Calculator Inputs -->
+      <div class="card calculator-card">
+        <h2>⚙️ Your Mining Rig</h2>
+
+        <div class="input-group">
+          <label for="hashrate">Hashrate</label>
+          <div class="input-row">
+            <input type="number" id="hashrate" value="100" min="0.001" step="0.1" />
+            <select id="hashrateUnit">
+              <option value="1">H/s</option>
+              <option value="1000">KH/s</option>
+              <option value="1000000" selected>MH/s</option>
+              <option value="1000000000">GH/s</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="power">Power Consumption (W)</label>
+          <input type="number" id="power" value="300" min="0" step="10" />
+        </div>
+
+        <div class="input-group">
+          <label for="electricityCost">Electricity Cost ($/kWh)</label>
+          <input type="number" id="electricityCost" value="0.10" min="0" step="0.01" />
+        </div>
+
+        <div class="input-group">
+          <label for="poolFee">Pool Fee (%)</label>
+          <input type="number" id="poolFee" value="1" min="0" max="100" step="0.1" />
+        </div>
+
+        <div class="input-group">
+          <label for="ergPriceOverride">ERG Price Override ($) <span class="hint">leave 0 for live</span></label>
+          <input type="number" id="ergPriceOverride" value="0" min="0" step="0.01" />
+        </div>
+
+        <button class="calc-btn" id="calcBtn">CALCULATE PROFIT</button>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="card results-card">
+        <h2>📊 Profit Analysis</h2>
+        <div id="resultsContent" class="results-placeholder">
+          <div class="placeholder-icon">⛏️</div>
+          <p>Enter your rig specs and click Calculate</p>
+        </div>
+        <div id="resultsData" class="results-data hidden">
+          <div class="profit-grid">
+            <div class="profit-period">
+              <div class="period-label">Hourly</div>
+              <div class="period-erg" id="hourlyErg">—</div>
+              <div class="period-usd profit" id="hourlyUsd">—</div>
+              <div class="period-net" id="hourlyNet">—</div>
+            </div>
+            <div class="profit-period">
+              <div class="period-label">Daily</div>
+              <div class="period-erg" id="dailyErg">—</div>
+              <div class="period-usd profit" id="dailyUsd">—</div>
+              <div class="period-net" id="dailyNet">—</div>
+            </div>
+            <div class="profit-period">
+              <div class="period-label">Weekly</div>
+              <div class="period-erg" id="weeklyErg">—</div>
+              <div class="period-usd profit" id="weeklyUsd">—</div>
+              <div class="period-net" id="weeklyNet">—</div>
+            </div>
+            <div class="profit-period">
+              <div class="period-label">Monthly</div>
+              <div class="period-erg" id="monthlyErg">—</div>
+              <div class="period-usd profit" id="monthlyUsd">—</div>
+              <div class="period-net" id="monthlyNet">—</div>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-row">
+              <span>Your Share of Network</span>
+              <span id="sharePercent" class="detail-val">—</span>
+            </div>
+            <div class="detail-row">
+              <span>Blocks per Day (expected)</span>
+              <span id="blocksPerDay" class="detail-val">—</span>
+            </div>
+            <div class="detail-row">
+              <span>Daily Power Cost</span>
+              <span id="dailyPowerCost" class="detail-val power-cost">—</span>
+            </div>
+            <div class="detail-row">
+              <span>Break-even ERG Price</span>
+              <span id="breakevenPrice" class="detail-val">—</span>
+            </div>
+          </div>
+
+          <div id="verdictBanner" class="verdict-banner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card chart-card">
+      <h2>📈 Profitability vs ERG Price</h2>
+      <p class="chart-desc">Daily net profit at different ERG price levels (at your current hashrate)</p>
+      <div class="chart-wrapper">
+        <canvas id="profitChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Mining Tips -->
+    <div class="card tips-card">
+      <h2>💡 Mining Tips</h2>
+      <div class="tips-grid">
+        <div class="tip">
+          <div class="tip-icon">🔋</div>
+          <h3>Optimize Power</h3>
+          <p>Undervolting your GPU can reduce power by 20-30% with minimal hashrate loss, significantly improving profitability.</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🌡️</div>
+          <h3>Temperature Matters</h3>
+          <p>Keep GPU temps below 70°C for Ergo mining. Autolykos v2 is memory-hard — hot VRAM degrades performance.</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🏊</div>
+          <h3>Choose Your Pool</h3>
+          <p>Popular Ergo pools: Enigma Pool, WoolyPooly, HeroMiners. Look for low fees (1%) and PPLNS payout schemes.</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">📦</div>
+          <h3>HODL Strategy</h3>
+          <p>Mining ERG and holding long-term has historically outperformed selling immediately. Consider your time horizon.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Built on <strong>Ergo Explorer API</strong> + <strong>CoinGecko</strong> · Part of the <a href="https://github.com/Degens-World" target="_blank">Degens.World</a> ecosystem</p>
+    <p class="disclaimer">For informational purposes only. Mining profitability can change rapidly with price and difficulty.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
