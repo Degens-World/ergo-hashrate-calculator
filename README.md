@@ -1,5 +1,10 @@
 # ⛏️ Ergo Mining Calculator
 
+## Live Demo
+
+**[https://ad-ergo-hashrate-calculator-1775133.vercel.app](https://ad-ergo-hashrate-calculator-1775133.vercel.app)**
+
+
 A live Ergo mining profitability calculator. Enter your rig's hashrate, power draw, and electricity cost to see real-time profit estimates using live network data.
 
 ## Features
